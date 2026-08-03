@@ -1,0 +1,1 @@
+{"inputs":{"src/client/assets.js":{"bytes":7305,"imports":[],"format":"esm"}},"outputs":{"client/assets.js.map":{"imports":[],"exports":[],"inputs":{},"bytes":13511},"client/assets.js":{"imports":[],"exports":[],"entryPoint":"src/client/assets.js","inputs":{"src/client/assets.js":{"bytesInOutput":4496}},"bytes":4639}}}
