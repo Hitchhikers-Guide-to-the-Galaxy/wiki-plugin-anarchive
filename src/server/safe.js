@@ -2,9 +2,9 @@
 // Pure functions, no fs, no express — so the security rules can be tested directly.
 
 import path from 'node:path'
+import { SIDECAR } from '../constants.js'
 
-// Written by the plugin itself, never accepted from a client.
-export const SIDECAR = '_anarchive.json'
+export { SIDECAR }
 
 // These execute in the wiki's own origin, because /assets is served static and
 // same-origin. 'home' is exempt: wiki-server reserves it for a customised home

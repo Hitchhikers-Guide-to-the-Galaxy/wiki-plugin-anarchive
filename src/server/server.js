@@ -5,6 +5,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import multer from 'multer'
 import { SIDECAR, safeFolder, safeName, allowedInFolder, listable } from './safe.js'
+import { readSidecar, writeSidecar, upsert, remove } from './sidecar.js'
 
 const startServer = params => {
   const { app, argv } = params
@@ -47,6 +48,31 @@ const startServer = params => {
     res.header('Access-Control-Allow-Origin', '*')
     next()
   }
+
+  // Client-supplied metadata, keyed by original filename. A single JSON field
+  // rather than parallel arrays, so nothing depends on field ordering lining up
+  // with the file order.
+  const parseMeta = raw => {
+    try {
+      const parsed = JSON.parse(raw)
+      return parsed && typeof parsed === 'object' && !Array.isArray(parsed) ? parsed : {}
+    } catch {
+      return {}
+    }
+  }
+
+  const str = (v, max = 500) => (typeof v === 'string' ? v.slice(0, max) : undefined)
+
+  // What a client is allowed to say about a file it is uploading. sha256 is
+  // client-computed by necessity — the bytes are already in the browser and
+  // hashing them again here would cost the shared farm process a full read.
+  const claimed = m => ({
+    sha256: /^[a-f0-9]{64}$/.test(m?.sha256 || '') ? m.sha256 : null,
+    caption: str(m?.caption) ?? '',
+    licence: str(m?.licence, 100) ?? '',
+    from: str(m?.from, 2000),
+    pin: str(m?.pin, 100) ? { service: str(m.pin, 100), requested: Date.now() } : null,
+  })
 
   app.get('/plugin/assets/list', cors, (req, res) => {
     const assetsPath = path.join(argv.assets, (req.query.assets || '').match(/([\w/-]*)/)[1])
@@ -106,6 +132,11 @@ const startServer = params => {
     const assetsPath = path.join(argv.assets, folder)
     fs.mkdirSync(assetsPath, { recursive: true })
 
+    const meta = parseMeta(req.body.meta)
+    const by = app['securityhandler'].getUser?.(req) ?? null
+    let data = readSidecar(assetsPath)
+    let touched = false
+
     const errors = []
     for (const element of req.files ?? []) {
       // basename before the join. This is the path traversal fix: originalname
@@ -122,8 +153,31 @@ const startServer = params => {
       } catch (err) {
         fs.rmSync(element.path, { force: true })
         errors.push(`could not store ${name}: ${err.code || err.message}`)
+        continue
+      }
+      data = upsert(data, name, {
+        ...claimed(meta[element.originalname] ?? meta[name]),
+        size: element.size,
+        added: Date.now(),
+        by,
+      })
+      touched = true
+    }
+
+    // No files and metadata to apply is a caption edit. It reuses this route so
+    // there is one authorised write path, not two: only the fields an editor may
+    // restate are taken, so provenance cannot be rewritten from the client.
+    if (!req.files?.length) {
+      for (const [raw, m] of Object.entries(meta)) {
+        const { name, error } = safeName(raw)
+        if (error || !data[name]) continue
+        const { caption, licence, pin } = claimed(m)
+        data = upsert(data, name, { caption, licence, pin })
+        touched = true
       }
     }
+
+    if (touched) writeSidecar(assetsPath, data)
 
     // Upstream collected these in an async rename callback and tested the array
     // before any callback ran, so failures were always reported as success.
@@ -141,6 +195,9 @@ const startServer = params => {
         if (err) {
           res.status(500).send(err.message)
         } else {
+          const dir = path.join(argv.assets, folder)
+          const data = readSidecar(dir)
+          if (data[file]) writeSidecar(dir, remove(data, file))
           res.status(200).send('ok')
         }
       })
