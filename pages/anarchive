@@ -1,0 +1,153 @@
+{
+  "title": "Anarchive",
+  "story": [
+    {
+      "type": "markdown",
+      "id": "c864d1e6738f4533",
+      "text": "**Anarchive** is a fork of the federated wiki Assets Plugin. It serves the same `assets` item type, behaves as the original does, and keeps a record of where each file came from."
+    },
+    {
+      "type": "markdown",
+      "id": "009cf8a616948be8",
+      "text": "It exists because the original joined a filename supplied by the browser straight onto a folder path, so a crafted name could write outside the assets folder. Anarchive takes the bare filename first. The fix was also offered upstream."
+    },
+    {
+      "type": "markdown",
+      "id": "85a10c263eb60488",
+      "text": "# What it adds"
+    },
+    {
+      "type": "markdown",
+      "id": "054e2af7e10f0f75",
+      "text": "A sidecar file in each assets folder, `_anarchive.json`, recording a SHA-256 hash, size, arrival time, uploader, source URL, caption and licence for every file the plugin receives. Captions can be edited in place. The record follows the folder when a page is forked, so provenance survives the crossing between sites."
+    },
+    {
+      "type": "markdown",
+      "id": "f8663b73a69d6cec",
+      "text": "Hashes are computed in the browser, where the bytes already are, so the shared wiki server never reads an upload twice. A file can also declare that it wants pinning; the plugin writes that wish down and never calls out, leaving the pinning to a service configured to read it."
+    },
+    {
+      "type": "markdown",
+      "id": "489d1a6e172ff423",
+      "text": "# Named for"
+    },
+    {
+      "type": "markdown",
+      "id": "fc77bc533cb72792",
+      "text": "An archive nobody is in charge of. Each site keeps its own record beside its own files, in a plain file any other site can read, and no index anywhere has to be asked permission."
+    },
+    {
+      "type": "markdown",
+      "id": "94c255e7d3f93fe9",
+      "text": "# Seat and occupant"
+    },
+    {
+      "type": "markdown",
+      "id": "3ea84cd2602884e7",
+      "text": "The package is called wiki-plugin-anarchive but it fills the seat named wiki-plugin-assets, because a federated wiki decides which code to send a browser from the folder name alone. That is why the item type is still `assets` and why pages written years ago keep working."
+    },
+    {
+      "type": "markdown",
+      "id": "7a1919313a0ae3bb",
+      "text": "The technique is written up on the plugin wiki."
+    },
+    {
+      "type": "reference",
+      "id": "0b3f771a82968de0",
+      "text": "How one package comes to serve another package's item type.",
+      "site": "plugin.fedwiki.club",
+      "slug": "plugin-upgrade",
+      "title": "Plugin Upgrade"
+    },
+    {
+      "type": "markdown",
+      "id": "0c31e87d9610a94d",
+      "text": "# See"
+    },
+    {
+      "type": "markdown",
+      "id": "6721c49eb7c8d539",
+      "text": "- [[About Assets Plugin]] \u2014 what the item does\n- [[About Reserved Asset Paths]] \u2014 folders with a special meaning"
+    }
+  ],
+  "journal": [
+    {
+      "type": "create",
+      "item": {
+        "title": "Anarchive",
+        "story": [
+          {
+            "type": "markdown",
+            "id": "c864d1e6738f4533",
+            "text": "**Anarchive** is a fork of the federated wiki Assets Plugin. It serves the same `assets` item type, behaves as the original does, and keeps a record of where each file came from."
+          },
+          {
+            "type": "markdown",
+            "id": "009cf8a616948be8",
+            "text": "It exists because the original joined a filename supplied by the browser straight onto a folder path, so a crafted name could write outside the assets folder. Anarchive takes the bare filename first. The fix was also offered upstream."
+          },
+          {
+            "type": "markdown",
+            "id": "85a10c263eb60488",
+            "text": "# What it adds"
+          },
+          {
+            "type": "markdown",
+            "id": "054e2af7e10f0f75",
+            "text": "A sidecar file in each assets folder, `_anarchive.json`, recording a SHA-256 hash, size, arrival time, uploader, source URL, caption and licence for every file the plugin receives. Captions can be edited in place. The record follows the folder when a page is forked, so provenance survives the crossing between sites."
+          },
+          {
+            "type": "markdown",
+            "id": "f8663b73a69d6cec",
+            "text": "Hashes are computed in the browser, where the bytes already are, so the shared wiki server never reads an upload twice. A file can also declare that it wants pinning; the plugin writes that wish down and never calls out, leaving the pinning to a service configured to read it."
+          },
+          {
+            "type": "markdown",
+            "id": "489d1a6e172ff423",
+            "text": "# Named for"
+          },
+          {
+            "type": "markdown",
+            "id": "fc77bc533cb72792",
+            "text": "An archive nobody is in charge of. Each site keeps its own record beside its own files, in a plain file any other site can read, and no index anywhere has to be asked permission."
+          },
+          {
+            "type": "markdown",
+            "id": "94c255e7d3f93fe9",
+            "text": "# Seat and occupant"
+          },
+          {
+            "type": "markdown",
+            "id": "3ea84cd2602884e7",
+            "text": "The package is called wiki-plugin-anarchive but it fills the seat named wiki-plugin-assets, because a federated wiki decides which code to send a browser from the folder name alone. That is why the item type is still `assets` and why pages written years ago keep working."
+          },
+          {
+            "type": "markdown",
+            "id": "7a1919313a0ae3bb",
+            "text": "The technique is written up on the plugin wiki."
+          },
+          {
+            "type": "reference",
+            "id": "0b3f771a82968de0",
+            "text": "How one package comes to serve another package's item type.",
+            "site": "plugin.fedwiki.club",
+            "slug": "plugin-upgrade",
+            "title": "Plugin Upgrade"
+          },
+          {
+            "type": "markdown",
+            "id": "0c31e87d9610a94d",
+            "text": "# See"
+          },
+          {
+            "type": "markdown",
+            "id": "6721c49eb7c8d539",
+            "text": "- [[About Assets Plugin]] \u2014 what the item does\n- [[About Reserved Asset Paths]] \u2014 folders with a special meaning"
+          }
+        ]
+      },
+      "date": 1785759097329,
+      "provenance": "Written with Claude Code while forking wiki-plugin-assets 0.7.4."
+    }
+  ]
+}

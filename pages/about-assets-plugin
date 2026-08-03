@@ -30,6 +30,76 @@
       "type": "paragraph",
       "id": "677f2397847a8b90",
       "text": "The plugin will offer an upload button when logged into the origin. Click this to select files to be uploaded or drag files (but not yet directories) to the asset list to initiate upload."
+    },
+    {
+      "type": "markdown",
+      "id": "c572f162caf1faf9",
+      "text": "# Anarchive"
+    },
+    {
+      "type": "markdown",
+      "id": "16e7598f284714ab",
+      "text": "This item type is served by [[Anarchive]], a fork of the original Assets Plugin. It behaves as the original does, and adds a record of where each file came from."
+    },
+    {
+      "type": "markdown",
+      "id": "53968468b8ccab34",
+      "text": "Each assets folder carries a sidecar file, `_anarchive.json`, holding one entry per file: a SHA-256 hash, its size, when it arrived and who uploaded it, the URL it was copied from, and any caption and licence. The sidecar is an ordinary file served from the same place as the assets, so a site can read another site's captions without either of them running a special route."
+    },
+    {
+      "type": "markdown",
+      "id": "4c80c63500af8738",
+      "text": "The sidecar follows the folder. Fork a page and its captions and provenance travel with it. It is a record, not an authority \u2014 the folder listing decides what exists, and an entry naming a file that has gone is ignored rather than deleted, because a sync may yet bring the file back."
+    },
+    {
+      "type": "markdown",
+      "id": "46e5e863beb480b5",
+      "text": "Files also arrive without passing through the plugin, by sync or by fork or by hand. Those have no entry until the backfill script shipped with the plugin is run over the site."
+    },
+    {
+      "type": "markdown",
+      "id": "d54bf483f740a1c7",
+      "text": "# Commands"
+    },
+    {
+      "type": "markdown",
+      "id": "acf622eb8b637644",
+      "text": "The first line remains the assets folder, exactly as before. Further lines may carry commands, written in capitals. A command sets a default applied to files uploaded into this folder from here. Lines that are not commands are ignored."
+    },
+    {
+      "type": "code",
+      "id": "7964ab3955ab3e7b",
+      "text": "PAGE\nLICENCE CC-BY-SA-4.0\nPIN filebase"
+    },
+    {
+      "type": "markdown",
+      "id": "f04850fc1b82b1d2",
+      "text": "LICENCE records what a file is licensed under. PIN records that a file is wanted in a mirror or pinning service; the plugin writes the request and never calls out, leaving the pinning to whatever service is configured to read it."
+    },
+    {
+      "type": "markdown",
+      "id": "3a81aaac610a7e70",
+      "text": "Because commands are capitalised and folder paths are not, a wiki running the original Assets Plugin reads only the first line of such an item and behaves exactly as it always did."
+    },
+    {
+      "type": "markdown",
+      "id": "4b5a43208f293e42",
+      "text": "# What is not accepted"
+    },
+    {
+      "type": "markdown",
+      "id": "faa7db322517f8c7",
+      "text": "A file whose name would place it outside the folder is refused, as is a name beginning with a dot and any attempt to write the sidecar directly. Uploads are capped in size and number."
+    },
+    {
+      "type": "markdown",
+      "id": "b1e1e40457f2422f",
+      "text": "Files that a browser would execute \u2014 html, javascript, wasm \u2014 are refused except in the reserved `home` folder, where a custom home page is the whole point. See [[About Reserved Asset Paths]]."
+    },
+    {
+      "type": "markdown",
+      "id": "ad5d5b14c7c32549",
+      "text": "SVG is accepted, because the drawing plugins need it. An SVG is served from the wiki's own origin and can carry script, so treat an uploaded SVG with the same care as any other page content."
     }
   ],
   "journal": [
@@ -165,6 +235,146 @@
         "text": "The plugin will offer an upload button when logged into the origin. Click this to select files to be uploaded or drag files (but not yet directories) to the asset list to initiate upload."
       },
       "date": 1517758360043
+    },
+    {
+      "type": "add",
+      "id": "c572f162caf1faf9",
+      "item": {
+        "type": "markdown",
+        "id": "c572f162caf1faf9",
+        "text": "# Anarchive"
+      },
+      "date": 1785759036996
+    },
+    {
+      "type": "add",
+      "id": "16e7598f284714ab",
+      "item": {
+        "type": "markdown",
+        "id": "16e7598f284714ab",
+        "text": "This item type is served by [[Anarchive]], a fork of the original Assets Plugin. It behaves as the original does, and adds a record of where each file came from."
+      },
+      "date": 1785759036996
+    },
+    {
+      "type": "add",
+      "id": "53968468b8ccab34",
+      "item": {
+        "type": "markdown",
+        "id": "53968468b8ccab34",
+        "text": "Each assets folder carries a sidecar file, `_anarchive.json`, holding one entry per file: a SHA-256 hash, its size, when it arrived and who uploaded it, the URL it was copied from, and any caption and licence. The sidecar is an ordinary file served from the same place as the assets, so a site can read another site's captions without either of them running a special route."
+      },
+      "date": 1785759036996
+    },
+    {
+      "type": "add",
+      "id": "4c80c63500af8738",
+      "item": {
+        "type": "markdown",
+        "id": "4c80c63500af8738",
+        "text": "The sidecar follows the folder. Fork a page and its captions and provenance travel with it. It is a record, not an authority \u2014 the folder listing decides what exists, and an entry naming a file that has gone is ignored rather than deleted, because a sync may yet bring the file back."
+      },
+      "date": 1785759036996
+    },
+    {
+      "type": "add",
+      "id": "46e5e863beb480b5",
+      "item": {
+        "type": "markdown",
+        "id": "46e5e863beb480b5",
+        "text": "Files also arrive without passing through the plugin, by sync or by fork or by hand. Those have no entry until the backfill script shipped with the plugin is run over the site."
+      },
+      "date": 1785759036996
+    },
+    {
+      "type": "add",
+      "id": "d54bf483f740a1c7",
+      "item": {
+        "type": "markdown",
+        "id": "d54bf483f740a1c7",
+        "text": "# Commands"
+      },
+      "date": 1785759036996
+    },
+    {
+      "type": "add",
+      "id": "acf622eb8b637644",
+      "item": {
+        "type": "markdown",
+        "id": "acf622eb8b637644",
+        "text": "The first line remains the assets folder, exactly as before. Further lines may carry commands, written in capitals. A command sets a default applied to files uploaded into this folder from here. Lines that are not commands are ignored."
+      },
+      "date": 1785759036996
+    },
+    {
+      "type": "add",
+      "id": "7964ab3955ab3e7b",
+      "item": {
+        "type": "code",
+        "id": "7964ab3955ab3e7b",
+        "text": "PAGE\nLICENCE CC-BY-SA-4.0\nPIN filebase"
+      },
+      "date": 1785759036996
+    },
+    {
+      "type": "add",
+      "id": "f04850fc1b82b1d2",
+      "item": {
+        "type": "markdown",
+        "id": "f04850fc1b82b1d2",
+        "text": "LICENCE records what a file is licensed under. PIN records that a file is wanted in a mirror or pinning service; the plugin writes the request and never calls out, leaving the pinning to whatever service is configured to read it."
+      },
+      "date": 1785759036996
+    },
+    {
+      "type": "add",
+      "id": "3a81aaac610a7e70",
+      "item": {
+        "type": "markdown",
+        "id": "3a81aaac610a7e70",
+        "text": "Because commands are capitalised and folder paths are not, a wiki running the original Assets Plugin reads only the first line of such an item and behaves exactly as it always did."
+      },
+      "date": 1785759036996
+    },
+    {
+      "type": "add",
+      "id": "4b5a43208f293e42",
+      "item": {
+        "type": "markdown",
+        "id": "4b5a43208f293e42",
+        "text": "# What is not accepted"
+      },
+      "date": 1785759036996
+    },
+    {
+      "type": "add",
+      "id": "faa7db322517f8c7",
+      "item": {
+        "type": "markdown",
+        "id": "faa7db322517f8c7",
+        "text": "A file whose name would place it outside the folder is refused, as is a name beginning with a dot and any attempt to write the sidecar directly. Uploads are capped in size and number."
+      },
+      "date": 1785759036996
+    },
+    {
+      "type": "add",
+      "id": "b1e1e40457f2422f",
+      "item": {
+        "type": "markdown",
+        "id": "b1e1e40457f2422f",
+        "text": "Files that a browser would execute \u2014 html, javascript, wasm \u2014 are refused except in the reserved `home` folder, where a custom home page is the whole point. See [[About Reserved Asset Paths]]."
+      },
+      "date": 1785759036996
+    },
+    {
+      "type": "add",
+      "id": "ad5d5b14c7c32549",
+      "item": {
+        "type": "markdown",
+        "id": "ad5d5b14c7c32549",
+        "text": "SVG is accepted, because the drawing plugins need it. An SVG is served from the wiki's own origin and can carry script, so treat an uploaded SVG with the same care as any other page content."
+      },
+      "date": 1785759036996
     }
   ]
 }

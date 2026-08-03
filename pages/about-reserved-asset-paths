@@ -60,6 +60,16 @@
       "type": "code",
       "id": "c93a5928308bf9c7",
       "text": "plugins/image"
+    },
+    {
+      "type": "markdown",
+      "id": "492cc11a2364b795",
+      "text": "Anarchive reserves the file name `_anarchive.json` in every assets folder for its own record of the files there. It is written by the plugin, hidden from asset listings, and refused as an upload."
+    },
+    {
+      "type": "code",
+      "id": "6e11888ee99a10f6",
+      "text": "_anarchive.json"
     }
   ],
   "journal": [
@@ -315,6 +325,26 @@
         "text": "PAGE"
       },
       "date": 1714918681394
+    },
+    {
+      "type": "add",
+      "id": "492cc11a2364b795",
+      "item": {
+        "type": "markdown",
+        "id": "492cc11a2364b795",
+        "text": "Anarchive reserves the file name `_anarchive.json` in every assets folder for its own record of the files there. It is written by the plugin, hidden from asset listings, and refused as an upload."
+      },
+      "date": 1785759036996
+    },
+    {
+      "type": "add",
+      "id": "6e11888ee99a10f6",
+      "item": {
+        "type": "code",
+        "id": "6e11888ee99a10f6",
+        "text": "_anarchive.json"
+      },
+      "date": 1785759036996
     }
   ]
 }
