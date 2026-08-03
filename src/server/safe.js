@@ -2,9 +2,9 @@
 // Pure functions, no fs, no express — so the security rules can be tested directly.
 
 import path from 'node:path'
-import { SIDECAR } from '../constants.js'
+import { SIDECAR, listable } from '../constants.js'
 
-export { SIDECAR }
+export { SIDECAR, listable }
 
 // These execute in the wiki's own origin, because /assets is served static and
 // same-origin. 'home' is exempt: wiki-server reserves it for a customised home
@@ -46,5 +46,3 @@ export const allowedInFolder = (name, folder) => {
   return { ok: true }
 }
 
-// What the list route and the client both hide from a file listing.
-export const listable = name => !name.startsWith('.') && name !== SIDECAR

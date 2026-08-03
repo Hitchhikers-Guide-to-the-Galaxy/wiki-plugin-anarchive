@@ -1,5 +1,24 @@
+import { listable } from '../constants.js'
+import { parse, folderOf } from './dsl.js'
+import { sha256, fetchMeta } from './meta.js'
+
 const expand = text => {
   return text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+}
+
+// Upstream repeated this in four places. PAGE resolves against the enclosing
+// page, so it needs the item's DOM position, not just its text.
+const resolveFolder = ($item, item) => {
+  const folder = folderOf(item.text)
+  if (folder !== 'PAGE') return folder
+  return '/pages/' + $item.parents('.page')[0].id.split('_rev')[0]
+}
+
+// What we can honestly say about a file as it is uploaded: its hash, and the
+// folder-level defaults this item declares.
+const describe = async ($item, item, file) => {
+  const { licence, pin } = parse(item.text)
+  return { sha256: await sha256(file), licence, pin }
 }
 
 const ignore = e => {
@@ -61,19 +80,29 @@ const post_upload = ($item, item, form) => {
   })
 }
 
-const get_file = ($item, item, url, success) => {
-  let assets = item.text.match(/([\w/-]*)/)[1]
-  if (assets === 'PAGE') {
-    assets = '/pages/' + $item.parents('.page')[0].id.split('_rev')[0]
-  }
+const get_file = ($item, item, url, success, inherited = {}) => {
+  const assets = resolveFolder($item, item)
   const filename = url.split('/').reverse()[0]
   fetch(url)
     .then(response => response.blob())
-    .then(blob => {
+    .then(async blob => {
       const file = new File([blob], filename, { type: blob.type })
 
       const form = new FormData()
       form.append('assets', assets)
+      // Carry what the remote said about the file, so provenance survives the
+      // hop instead of being lost at the site boundary. The hash is recomputed
+      // from the bytes we actually received rather than taken on trust; the
+      // licence is a fact about the work, so the source wins over our default.
+      const local = await describe($item, item, file)
+      const entry = {
+        sha256: local.sha256,
+        caption: inherited.caption || '',
+        licence: inherited.licence || local.licence,
+        pin: local.pin,
+        from: url,
+      }
+      form.append('meta', JSON.stringify({ [file.name]: entry }))
       form.append('uploads[]', file, file.name)
       success(form)
     })
@@ -86,10 +115,7 @@ const get_file = ($item, item, url, success) => {
 
 const delete_file = ($item, item, url) => {
   const file = url.split('/').reverse()[0]
-  let assets = item.text.match(/([\w/-]*)/)[1]
-  if (assets === 'PAGE') {
-    assets = '/pages/' + $item.parents('.page')[0].id.split('_rev')[0]
-  }
+  const assets = resolveFolder($item, item)
   $.ajax({
     url: `/plugin/assets/delete?file=${file}&assets=${assets}`,
     type: 'POST',
@@ -115,42 +141,56 @@ const fetch_list = ($item, item, $report, assets, remote, assetsData) => {
     return
   }
 
-  const link = file => {
+  const own = remote === location.host
+
+  const link = (file, entry) => {
     const href = `${assetsURL}/${assets === '' ? '' : assets + '/'}${encodeURIComponent(file)}`
     // todo: no action if not logged on
-    const act = !isOwner
-      ? ''
-      : remote !== location.host
-        ? '<button class="copy">⚑</button> '
-        : '<button class="delete">✕</button> '
+    const act = !isOwner ? '' : own ? '<button class="delete">✕</button> ' : '<button class="copy">⚑</button> '
+    const edit = isOwner && own ? ' <button class="caption" title="caption">✎</button>' : ''
+    const caption = entry?.caption ? ` <span style="color:gray">— ${expand(entry.caption)}</span>` : ''
 
-    return `<span>${act}<a href="${href}" target=_blank>${expand(file)}</a></span>`
+    return `<span data-file="${expand(file)}">${act}<a href="${href}" target=_blank>${expand(file)}</a>${caption}${edit}</span>`
   }
 
-  const render = data => {
+  const render = (data, meta) => {
     assetsData[assets] ??= {}
     if (data.error) {
       if (data.error.code == 'ENOENT') return $report.text('no files')
       return $report.text(`plugin reports: ${data.error.code}`)
     }
-    const files = data.files
+    // Hide the sidecar and dotfiles here as well as in our own list route: a
+    // remote running stock assets will happily list both.
+    const files = data.files.filter(listable)
+    // The contract other plugins read is an array of filename strings. Keep it
+    // exactly that shape; metadata goes under a key a folder cannot have.
     assetsData[assets][assetsURL] = files
+    assetsData['.meta'] ??= {}
+    assetsData['.meta'][assetsURL] = meta
 
     if (files.length === 0) {
       return $report.text('no files')
     }
-    $report.html(files.map(file => link(file)).join('<br>'))
+    $report.html(files.map(file => link(file, meta[file])).join('<br>'))
 
     $report.find('button.copy').on('click', e => {
-      const href = $(e.target).parent().find('a').attr('href')
-      get_file($item, item, href, form => {
-        post_upload($item, item, form)
-      })
+      const $span = $(e.target).parent()
+      const href = $span.find('a').attr('href')
+      get_file($item, item, href, form => post_upload($item, item, form), meta[$span.data('file')] || {})
     })
 
     $report.find('button.delete').on('click', e => {
       const href = $(e.target).parent().find('a').attr('href')
       delete_file($item, item, href)
+    })
+
+    $report.find('button.caption').on('click', e => {
+      const $span = $(e.target).parent()
+      const file = $span.data('file')
+      const current = meta[file]?.caption || ''
+      const next = window.prompt(`Caption for ${file}`, current)
+      if (next === null || next === current) return
+      set_caption($item, item, file, next)
     })
   }
 
@@ -158,13 +198,24 @@ const fetch_list = ($item, item, $report, assets, remote, assetsData) => {
     $report.text(`plugin error: ${e.statusText} ${e.responseText || ''}`)
   }
 
+  // The sidecar comes off the static assets route, not a plugin route, so this
+  // works against sites running stock assets too — they simply answer 404.
   $.ajax({
     url: wiki.site(requestSite).getURL('plugin/assets/list'),
     data: { assets },
     dataType: 'json',
-    success: render,
+    success: data => fetchMeta(assetsURL, assets).then(meta => render(data, meta)),
     error: trouble,
   })
+}
+
+// A caption edit is an upload with no files. Reusing the upload route keeps one
+// authorised write path rather than two.
+const set_caption = ($item, item, file, caption) => {
+  const form = new FormData()
+  form.append('assets', resolveFolder($item, item))
+  form.append('meta', JSON.stringify({ [file]: { caption } }))
+  post_upload($item, item, form)
 }
 
 const emit = ($item, item) => {
@@ -181,7 +232,7 @@ const emit = ($item, item) => {
   $item.addClass('assets-source')
   $item.get(0).assetsData = () => assetsData
 
-  let assets = item.text.match(/([\w/-]*)/)[1]
+  let assets = folderOf(item.text)
 
   if (assets === 'PAGE') {
     if ($item.parents('.page')[0].id.endsWith('template')) {
@@ -213,10 +264,7 @@ const emit = ($item, item) => {
 }
 
 const bind = ($item, item) => {
-  let assets = item.text.match(/([\w/-]*)/)[1]
-  if (assets === 'PAGE') {
-    assets = '/pages/' + $item.parents('.page')[0].id.split('_rev')[0]
-  }
+  const assets = resolveFolder($item, item)
 
   $item.on('dblclick', () => wiki.textEditor($item, item))
 
@@ -240,14 +288,17 @@ const bind = ($item, item) => {
     upload(e.originalEvent.dataTransfer?.files)
   })
 
-  const upload = files => {
+  const upload = async files => {
     console.log('upload', files)
     if (!files?.length) return
     const form = new FormData()
     form.append('assets', assets)
+    const meta = {}
     for (const file of files) {
+      meta[file.name] = await describe($item, item, file)
       form.append('uploads[]', file, file.name)
     }
+    form.append('meta', JSON.stringify(meta))
     post_upload($item, item, form)
   }
 }

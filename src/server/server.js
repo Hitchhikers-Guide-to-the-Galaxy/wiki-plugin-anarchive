@@ -171,8 +171,15 @@ const startServer = params => {
       for (const [raw, m] of Object.entries(meta)) {
         const { name, error } = safeName(raw)
         if (error || !data[name]) continue
-        const { caption, licence, pin } = claimed(m)
-        data = upsert(data, name, { caption, licence, pin })
+        // Only the fields actually sent, so editing a caption cannot blank a
+        // licence or drop a pin request that the editor never mentioned.
+        const full = claimed(m)
+        const patch = {}
+        for (const field of ['caption', 'licence', 'pin']) {
+          if (typeof m?.[field] === 'string') patch[field] = full[field]
+        }
+        if (!Object.keys(patch).length) continue
+        data = upsert(data, name, patch)
         touched = true
       }
     }
