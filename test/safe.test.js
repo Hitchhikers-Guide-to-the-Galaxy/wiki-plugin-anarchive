@@ -2,8 +2,10 @@ import { describe, it } from 'node:test'
 import assert from 'node:assert/strict'
 import { SIDECAR, safeFolder, safeName, allowedInFolder, reserved, listable } from '../src/server/safe.js'
 
-// This file is the reason the fork exists. wiki-plugin-assets 0.7.4 joined the
-// client-supplied multipart originalname straight onto the assets directory.
+// Upstream joined the client-supplied multipart originalname straight onto the
+// assets directory. That is not reachable in practice — multer's parser strips
+// the path first — so these cases guard the guarantee rather than close a hole:
+// they hold whatever the parser does, including if preservePath is ever set.
 describe('safeName — path traversal', () => {
   it('strips a traversal prefix down to the bare filename', () => {
     assert.equal(safeName('../../../../etc/passwd').name, 'passwd')

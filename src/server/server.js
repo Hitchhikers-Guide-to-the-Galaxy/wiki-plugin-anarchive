@@ -139,8 +139,11 @@ const startServer = params => {
 
     const errors = []
     for (const element of req.files ?? []) {
-      // basename before the join. This is the path traversal fix: originalname
-      // is client-supplied and a crafted ../ escapes the assets folder.
+      // basename before the join. multer's parser already strips the path
+      // (busboy applies its own basename unless preservePath is set, which we
+      // do not set), so this is not closing a live hole — it states the
+      // guarantee here instead of inheriting it from a transitive dependency's
+      // default, where a later change could quietly remove it.
       const { name, error } = safeName(element.originalname)
       const denied = error || allowedInFolder(name, folder).error
       if (denied) {

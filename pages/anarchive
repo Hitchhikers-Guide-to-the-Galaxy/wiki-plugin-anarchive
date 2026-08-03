@@ -9,7 +9,22 @@
     {
       "type": "markdown",
       "id": "009cf8a616948be8",
-      "text": "It exists because the original joined a filename supplied by the browser straight onto a folder path, so a crafted name could write outside the assets folder. Anarchive takes the bare filename first. The fix was also offered upstream."
+      "text": "It began as a security fix that turned out not to be one. The original joins a filename supplied by the browser straight onto a folder path, which looks like it would let a crafted name escape the folder \u2014 but the upload parser strips the path first, so nothing was ever exposed. Anarchive states that guarantee in its own code rather than inheriting it, and went on to fix the things that were real."
+    },
+    {
+      "type": "markdown",
+      "id": "a4a1f46100e82b85",
+      "text": "# What was actually wrong"
+    },
+    {
+      "type": "markdown",
+      "id": "1e768a13c1b4e71e",
+      "text": "Three things, all found by testing rather than reading. Every upload folder in the farm carried a `.DS_Store` that the plugin listed as a link to a file the server refuses to serve. The parser's scratch directory sat inside the published assets tree, so half-finished uploads and their leftovers were fetchable by anyone. And an upload that failed to store was reported to the browser as a success, because the error was collected after the check that read it."
+    },
+    {
+      "type": "markdown",
+      "id": "19dd52f93d73779a",
+      "text": "Anarchive hides dotfiles from listings, moves the scratch directory out of the published tree, reports a failed upload as a failure, caps the size and number of files accepted, and refuses names that a browser would execute except in the folder reserved for a custom home page."
     },
     {
       "type": "markdown",
@@ -148,6 +163,36 @@
       },
       "date": 1785759097329,
       "provenance": "Written with Claude Code while forking wiki-plugin-assets 0.7.4."
+    },
+    {
+      "type": "add",
+      "id": "a4a1f46100e82b85",
+      "item": {
+        "type": "markdown",
+        "id": "a4a1f46100e82b85",
+        "text": "# What was actually wrong"
+      },
+      "date": 1785759827334
+    },
+    {
+      "type": "add",
+      "id": "1e768a13c1b4e71e",
+      "item": {
+        "type": "markdown",
+        "id": "1e768a13c1b4e71e",
+        "text": "Three things, all found by testing rather than reading. Every upload folder in the farm carried a `.DS_Store` that the plugin listed as a link to a file the server refuses to serve. The parser's scratch directory sat inside the published assets tree, so half-finished uploads and their leftovers were fetchable by anyone. And an upload that failed to store was reported to the browser as a success, because the error was collected after the check that read it."
+      },
+      "date": 1785759827334
+    },
+    {
+      "type": "add",
+      "id": "19dd52f93d73779a",
+      "item": {
+        "type": "markdown",
+        "id": "19dd52f93d73779a",
+        "text": "Anarchive hides dotfiles from listings, moves the scratch directory out of the published tree, reports a failed upload as a failure, caps the size and number of files accepted, and refuses names that a browser would execute except in the folder reserved for a custom home page."
+      },
+      "date": 1785759827334
     }
   ]
 }
