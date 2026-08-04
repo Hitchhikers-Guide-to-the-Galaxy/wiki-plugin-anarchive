@@ -18,7 +18,8 @@
   ],
   "scripts": {
     "build": "node scripts/build.js",
-    "test": "node --test"
+    "test": "node --test",
+    "prepublishOnly": "npm run build"
   },
   "devDependencies": {
     "esbuild": "^0.28.0"
@@ -39,7 +40,8 @@
     "server",
     "src",
     "pages",
-    "factory.json"
+    "factory.json",
+    "scripts/backfill.py"
   ],
   "engines": {
     "node": ">=22"

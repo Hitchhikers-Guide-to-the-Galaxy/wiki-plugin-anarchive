@@ -1,8 +1,0 @@
-scripts
-src
-test
-
-eslint.config.js
-.prettier*
-.vscode
-.zed
