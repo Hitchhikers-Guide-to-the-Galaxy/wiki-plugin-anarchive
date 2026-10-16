@@ -6,10 +6,8 @@ import { SIDECAR, listable } from '../constants.js'
 
 export { SIDECAR, listable }
 
-// These execute in the wiki's own origin, because /assets is served static and
-// same-origin. 'home' is exempt: wiki-server reserves it for a customised home
-// page, where an index.html is the entire point. See About Reserved Asset Paths.
-const EXECUTABLE = new Set(['.html', '.htm', '.xhtml', '.js', '.mjs', '.cjs', '.wasm'])
+// File types are not restricted: html in a page's folder is ordinary (a deck, a
+// report), and stock wiki-plugin-assets has always accepted it there.
 
 const MAX_NAME = 200
 
@@ -20,8 +18,6 @@ export const safeFolder = raw => {
   const matched = (raw || '').match(/([\w/-]*)/)[1]
   return matched.split('/').includes('..') ? null : matched
 }
-
-export const reserved = folder => (folder || '').replace(/^\/+|\/+$/g, '') === 'home'
 
 // Folder-independent name policy. Rejects rather than rewrites: silently
 // renaming would break the URLs authors paste into image and markdown items,
@@ -35,14 +31,5 @@ export const safeName = originalname => {
   if (name === SIDECAR) return { error: `${SIDECAR} is written by the plugin` }
   if (name.length > MAX_NAME) return { error: `filename longer than ${MAX_NAME} characters` }
   return { name }
-}
-
-// Folder-dependent policy, checked once the assets field is known for certain.
-export const allowedInFolder = (name, folder) => {
-  const ext = path.extname(name).toLowerCase()
-  if (EXECUTABLE.has(ext) && !reserved(folder)) {
-    return { error: `${ext} files are only accepted in the reserved 'home' folder` }
-  }
-  return { ok: true }
 }
 

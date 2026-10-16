@@ -1,6 +1,6 @@
 {
   "name": "wiki-plugin-anarchive",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Federated Wiki - Anarchive, a fork of the Assets Plugin that fills the assets seat",
   "keywords": [
     "assets",

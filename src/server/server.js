@@ -4,7 +4,7 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import multer from 'multer'
-import { SIDECAR, safeFolder, safeName, allowedInFolder, listable } from './safe.js'
+import { SIDECAR, safeFolder, safeName, listable } from './safe.js'
 import { readSidecar, writeSidecar, upsert, remove } from './sidecar.js'
 
 const startServer = params => {
@@ -145,10 +145,9 @@ const startServer = params => {
       // guarantee here instead of inheriting it from a transitive dependency's
       // default, where a later change could quietly remove it.
       const { name, error } = safeName(element.originalname)
-      const denied = error || allowedInFolder(name, folder).error
-      if (denied) {
+      if (error) {
         fs.rmSync(element.path, { force: true })
-        errors.push(denied)
+        errors.push(error)
         continue
       }
       try {

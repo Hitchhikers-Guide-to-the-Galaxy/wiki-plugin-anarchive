@@ -1,6 +1,6 @@
 import { describe, it } from 'node:test'
 import assert from 'node:assert/strict'
-import { SIDECAR, safeFolder, safeName, allowedInFolder, reserved, listable } from '../src/server/safe.js'
+import { SIDECAR, safeFolder, safeName, listable } from '../src/server/safe.js'
 
 // Upstream joined the client-supplied multipart originalname straight onto the
 // assets directory. That is not reachable in practice — multer's parser strips
@@ -48,28 +48,15 @@ describe('safeName — name policy', () => {
   })
 })
 
-describe('allowedInFolder — executable extensions', () => {
-  it('refuses html in an ordinary page folder', () => {
-    assert.match(allowedInFolder('index.html', 'pages/foo').error, /reserved 'home' folder/)
+describe('safeName — file types', () => {
+  it('accepts html in an ordinary page folder, as stock assets does', () => {
+    assert.equal(safeName('deck.html').name, 'deck.html')
   })
 
-  it('accepts html in the reserved home folder, where it is the whole point', () => {
-    assert.deepEqual(allowedInFolder('index.html', 'home'), { ok: true })
-    assert.deepEqual(allowedInFolder('index.html', '/home'), { ok: true })
-  })
-
-  it('refuses javascript and wasm outside home', () => {
-    for (const name of ['x.js', 'x.mjs', 'x.cjs', 'x.wasm', 'x.htm', 'x.xhtml']) {
-      assert.ok(allowedInFolder(name, 'pages/foo').error, `expected ${name} to be refused`)
+  it('accepts javascript, wasm and svg alike — types are not policed', () => {
+    for (const name of ['x.js', 'x.mjs', 'x.wasm', 'x.htm', 'drawing.svg']) {
+      assert.equal(safeName(name).name, name)
     }
-  })
-
-  it('allows svg — the svg and diagram-editor plugins need it', () => {
-    assert.deepEqual(allowedInFolder('drawing.svg', 'pages/foo'), { ok: true })
-  })
-
-  it('is case insensitive about the extension', () => {
-    assert.ok(allowedInFolder('X.HTML', 'pages/foo').error)
   })
 })
 
@@ -90,13 +77,7 @@ describe('safeFolder', () => {
   })
 })
 
-describe('reserved / listable', () => {
-  it('treats only home as reserved', () => {
-    assert.ok(reserved('home'))
-    assert.ok(reserved('/home/'))
-    assert.ok(!reserved('pages/home'))
-  })
-
+describe('listable', () => {
   it('hides dotfiles and the sidecar from a listing', () => {
     assert.ok(listable('photo.jpg'))
     assert.ok(!listable('.DS_Store'))

@@ -94,7 +94,7 @@
     {
       "type": "markdown",
       "id": "b1e1e40457f2422f",
-      "text": "Files that a browser would execute \u2014 html, javascript, wasm \u2014 are refused except in the reserved `home` folder, where a custom home page is the whole point. See [[About Reserved Asset Paths]]."
+      "text": "File types are not restricted: html, javascript and the rest are accepted in any page's folder, as the stock Assets plugin accepts them. The `home` folder stays reserved for a custom home page. See [[About Reserved Asset Paths]]."
     },
     {
       "type": "markdown",
@@ -375,6 +375,16 @@
         "text": "SVG is accepted, because the drawing plugins need it. An SVG is served from the wiki's own origin and can carry script, so treat an uploaded SVG with the same care as any other page content."
       },
       "date": 1785759036996
+    },
+    {
+      "type": "edit",
+      "id": "b1e1e40457f2422f",
+      "item": {
+        "type": "markdown",
+        "id": "b1e1e40457f2422f",
+        "text": "File types are not restricted: html, javascript and the rest are accepted in any page's folder, as the stock Assets plugin accepts them. The `home` folder stays reserved for a custom home page. See [[About Reserved Asset Paths]]."
+      },
+      "date": 1792174031791
     }
   ]
 }

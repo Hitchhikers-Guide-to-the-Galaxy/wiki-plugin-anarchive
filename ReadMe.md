@@ -7,8 +7,8 @@ that serves the same `assets` item type with fixes offered back upstream:
 - **captions** shown on assets
 - an item **DSL** (UPPERCASE directives) for the assets item
 - **hardened uploads** — temp dir moved out of the CORS-open served tree,
-  dotfiles/path separators/null bytes rejected, `.html/.js/.wasm` refused
-  outside the reserved `home` folder
+  dotfiles/path separators/null bytes rejected (file types are not
+  restricted — html in a page's folder is accepted, as upstream does)
 - an out-of-process **backfill** script (`scripts/backfill.py`) that writes
   sidecar entries for assets uploaded before this fork
 
